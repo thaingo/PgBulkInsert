@@ -16,42 +16,42 @@ import java.util.List;
 
 public class PgBulkInsertPrimitivesTest extends TransactionalTestBase {
 
-	private static class SampleEntity {
+    private static class SampleEntity {
 
-		public int col_integer;
-		public float col_float;
-		public double col_double;
-		public long col_long;
-		public short col_short;
+        public int col_integer;
+        public float col_float;
+        public double col_double;
+        public long col_long;
+        public short col_short;
         @Nullable
-		public byte[] col_bytearray;
-		public boolean col_boolean;
+        public byte[] col_bytearray;
+        public boolean col_boolean;
 
 
-		public int getCol_integer() {
-			return col_integer;
-		}
-		public float getCol_float() {
-			return col_float;
-		}
-		public double getCol_double() {
-			return col_double;
-		}
-		public long getCol_long() {
-			return col_long;
-		}
-		public short getCol_short() {
-			return col_short;
-		}
+        public int getCol_integer() {
+            return col_integer;
+        }
+        public float getCol_float() {
+            return col_float;
+        }
+        public double getCol_double() {
+            return col_double;
+        }
+        public long getCol_long() {
+            return col_long;
+        }
+        public short getCol_short() {
+            return col_short;
+        }
         @Nullable
-		public byte[] getCol_bytearray() {
-			return col_bytearray;
-		}
-		public boolean isCol_boolean() {
-			return col_boolean;
-		}
+        public byte[] getCol_bytearray() {
+            return col_bytearray;
+        }
+        public boolean isCol_boolean() {
+            return col_boolean;
+        }
 
-	}
+    }
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
@@ -66,6 +66,21 @@ public class PgBulkInsertPrimitivesTest extends TransactionalTestBase {
     private class SampleEntityMapping extends AbstractMapping<SampleEntity> {
 
         public SampleEntityMapping() {
+            super(schema, "unit_test");
+
+            mapBooleanPrimitive("col_boolean", SampleEntity::isCol_boolean);
+            mapIntegerPrimitive("col_integer", SampleEntity::getCol_integer);
+            mapShortPrimitive("col_smallint", SampleEntity::getCol_short);
+            mapLongPrimitive("col_long", SampleEntity::getCol_long);
+            mapByteArray("col_bytea", SampleEntity::getCol_bytearray);
+            mapFloatPrimitive("col_real", SampleEntity::getCol_float);
+            mapDoublePrimitive("col_double", SampleEntity::getCol_double);
+        }
+    }
+
+    private class SampleEntityPrimitiveMapping extends AbstractMapping<SampleEntity> {
+
+        public SampleEntityPrimitiveMapping() {
             super(schema, "unit_test");
 
             mapBoolean("col_boolean", SampleEntity::isCol_boolean);
@@ -125,6 +140,47 @@ public class PgBulkInsertPrimitivesTest extends TransactionalTestBase {
             short v = rs.getShort("col_smallint");
 
             Assert.assertEquals(1, v);
+        }
+    }
+
+    @Test
+    public void saveAll_Primitive_Test() throws SQLException {
+
+        // This list will be inserted.
+        List<SampleEntity> entities = new ArrayList<>();
+
+        // Create the Entity to insert:
+        SampleEntity entity = new SampleEntity();
+        entity.col_boolean = true;
+        entity.col_double = 1.0;
+        entity.col_float = 2.0f;
+        entity.col_short = 3;
+        entity.col_long = 4;
+        entity.col_integer = 5;
+
+        entities.add(entity);
+
+        PgBulkInsert<SampleEntity> pgBulkInsert = new PgBulkInsert<>(new SampleEntityPrimitiveMapping());
+
+        pgBulkInsert.saveAll(PostgreSqlUtils.getPGConnection(connection), entities.stream());
+
+        ResultSet rs = getAll();
+
+        while (rs.next()) {
+
+            boolean a1 = rs.getBoolean("col_boolean");
+            double a2 = rs.getDouble("col_double");
+            float a3 = rs.getFloat("col_float");
+            short a4 = rs.getShort("col_short");
+            long a5 = rs.getLong("col_long");
+            int a6 = rs.getInt("col_integer");
+
+            Assert.assertEquals(true, a1);
+            Assert.assertEquals(a2, 1.0, 1e-3);
+            Assert.assertEquals(a3, 2.0, 1e-3);
+            Assert.assertEquals(a4, 3);
+            Assert.assertEquals(a5, 4);
+            Assert.assertEquals(a6, 5);
         }
     }
 
