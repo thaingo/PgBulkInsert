@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("NullAway")
 public class PgBulkInsertPrimitivesTest extends TransactionalTestBase {
 
     private static class SampleEntity {
@@ -23,10 +24,8 @@ public class PgBulkInsertPrimitivesTest extends TransactionalTestBase {
         public double col_double;
         public long col_long;
         public short col_short;
-        @Nullable
         public byte[] col_bytearray;
         public boolean col_boolean;
-
 
         public int getCol_integer() {
             return col_integer;
@@ -43,7 +42,6 @@ public class PgBulkInsertPrimitivesTest extends TransactionalTestBase {
         public short getCol_short() {
             return col_short;
         }
-        @Nullable
         public byte[] getCol_bytearray() {
             return col_bytearray;
         }
@@ -170,17 +168,17 @@ public class PgBulkInsertPrimitivesTest extends TransactionalTestBase {
 
             boolean a1 = rs.getBoolean("col_boolean");
             double a2 = rs.getDouble("col_double");
-            float a3 = rs.getFloat("col_float");
-            short a4 = rs.getShort("col_short");
+            float a3 = rs.getFloat("col_real");
+            short a4 = rs.getShort("col_smallint");
             long a5 = rs.getLong("col_long");
             int a6 = rs.getInt("col_integer");
 
             Assert.assertEquals(true, a1);
             Assert.assertEquals(a2, 1.0, 1e-3);
             Assert.assertEquals(a3, 2.0, 1e-3);
-            Assert.assertEquals(a4, 3);
-            Assert.assertEquals(a5, 4);
-            Assert.assertEquals(a6, 5);
+            Assert.assertEquals(3, a4);
+            Assert.assertEquals(4, a5);
+            Assert.assertEquals(5, a6);
         }
     }
 
